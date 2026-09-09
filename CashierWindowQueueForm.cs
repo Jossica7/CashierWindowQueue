@@ -13,7 +13,6 @@ namespace CashierWindowQueue
         {
             InitializeComponent();
             cashierQueue = new CashierClass();
-            InitializeTimer();
         }
 
         private void InitializeComponent()
@@ -58,51 +57,123 @@ namespace CashierWindowQueue
             this.Controls.Add(this.btnRefresh);
             this.Name = "CashierWindowQueueForm";
             this.Text = "Cashier Queue Manager";
+            this.Load += new System.EventHandler(this.CashierWindowQueueForm_Load);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CashierWindowQueueForm_FormClosing);
             this.ResumeLayout(false);
         }
 
-        private void InitializeTimer()
+        // Load Event - Initialize form and start timer
+        private void CashierWindowQueueForm_Load(object sender, EventArgs e)
         {
-            timer = new Timer();
-            timer.Interval = 1000; // 1 second
-            timer.Tick += new EventHandler(timer1_Tick);
-            timer.Start();
+            try
+            {
+                // Initialize Timer for automatic refresh
+                timer = new Timer();
+                timer.Interval = 1000; // 1 second
+                timer.Tick += new EventHandler(timer1_Tick);
+                timer.Start();
+
+                // Display initial queue
+                DisplayCashierQueue(cashierQueue.CashierList);
+
+                MessageBox.Show("Cashier Queue Manager Loaded Successfully!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading form: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Closing Event - Clean up resources
+        private void CashierWindowQueueForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                // Stop and dispose timer
+                if (timer != null)
+                {
+                    timer.Stop();
+                    timer.Dispose();
+                }
+
+                // Clear queue
+                cashierQueue.ClearQueue();
+
+                // Log closure
+                System.Diagnostics.Debug.WriteLine("Cashier Queue Manager Form Closed at: " + DateTime.Now);
+
+                MessageBox.Show("Cashier Queue Manager Closed Successfully!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error closing form: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
-            DisplayCashierQueue(cashierQueue.CashierList);
+            try
+            {
+                DisplayCashierQueue(cashierQueue.CashierList);
+                MessageBox.Show("Queue Refreshed! Current Count: " + cashierQueue.QueueCount, "Refresh", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error refreshing queue: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnNext_Click(object sender, EventArgs e)
         {
-            if (listCashierQueue.Items.Count > 0)
+            try
             {
-                // Remove the first item from the queue
-                cashierQueue.RemoveFromQueue(0);
-                DisplayCashierQueue(cashierQueue.CashierList);
+                if (listCashierQueue.Items.Count > 0)
+                {
+                    string currentTicket = cashierQueue.GetNextTicket();
+                    cashierQueue.RemoveFromQueue(0);
+                    DisplayCashierQueue(cashierQueue.CashierList);
+                    MessageBox.Show("Ticket " + currentTicket + " has been served!", "Next Ticket", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Queue is empty!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Queue is empty!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Error processing next ticket: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        public void DisplayCashierQueue(IEnumerable CashierList)
+        public void DisplayCashierQueue(System.Collections.Generic.List<string> CashierList)
         {
-            listCashierQueue.Items.Clear();
-            foreach (object obj in CashierList)
+            try
             {
-                listCashierQueue.Items.Add(obj.ToString());
+                listCashierQueue.Items.Clear();
+                foreach (object obj in CashierList)
+                {
+                    listCashierQueue.Items.Add(obj.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error displaying queue: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            // Automatically refresh the list when there are updates
-            if (cashierQueue.HasUpdates())
+            try
             {
-                DisplayCashierQueue(cashierQueue.CashierList);
+                // Automatically refresh the list when there are updates
+                if (cashierQueue.HasUpdates())
+                {
+                    DisplayCashierQueue(cashierQueue.CashierList);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in timer tick: " + ex.Message);
             }
         }
 
