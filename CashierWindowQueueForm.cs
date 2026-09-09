@@ -1,8 +1,12 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CashierWindowQueue
+namespace Queue
 {
     public partial class CashierWindowQueueForm : Form
     {
@@ -15,54 +19,6 @@ namespace CashierWindowQueue
             cashierQueue = new CashierClass();
         }
 
-        private void InitializeComponent()
-        {
-            this.btnRefresh = new System.Windows.Forms.Button();
-            this.btnNext = new System.Windows.Forms.Button();
-            this.listCashierQueue = new System.Windows.Forms.ListView();
-            this.SuspendLayout();
-
-            // btnRefresh
-            this.btnRefresh.Location = new System.Drawing.Point(12, 12);
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(100, 30);
-            this.btnRefresh.TabIndex = 0;
-            this.btnRefresh.Text = "Refresh";
-            this.btnRefresh.UseVisualStyleBackColor = true;
-            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
-
-            // btnNext
-            this.btnNext.Location = new System.Drawing.Point(118, 12);
-            this.btnNext.Name = "btnNext";
-            this.btnNext.Size = new System.Drawing.Size(100, 30);
-            this.btnNext.TabIndex = 1;
-            this.btnNext.Text = "Next";
-            this.btnNext.UseVisualStyleBackColor = true;
-            this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
-
-            // listCashierQueue
-            this.listCashierQueue.Location = new System.Drawing.Point(12, 50);
-            this.listCashierQueue.Name = "listCashierQueue";
-            this.listCashierQueue.Size = new System.Drawing.Size(260, 200);
-            this.listCashierQueue.TabIndex = 2;
-            this.listCashierQueue.UseCompatibleStateImageBehavior = false;
-            this.listCashierQueue.View = System.Windows.Forms.View.List;
-
-            // CashierWindowQueueForm
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
-            this.Controls.Add(this.listCashierQueue);
-            this.Controls.Add(this.btnNext);
-            this.Controls.Add(this.btnRefresh);
-            this.Name = "CashierWindowQueueForm";
-            this.Text = "Cashier Queue Manager";
-            this.Load += new System.EventHandler(this.CashierWindowQueueForm_Load);
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CashierWindowQueueForm_FormClosing);
-            this.ResumeLayout(false);
-        }
-
-        // Load Event - Initialize form and start timer
         private void CashierWindowQueueForm_Load(object sender, EventArgs e)
         {
             try
@@ -74,17 +30,18 @@ namespace CashierWindowQueue
                 timer.Start();
 
                 // Display initial queue
-                DisplayCashierQueue(cashierQueue.CashierList);
+                DisplayCashierQueue(cashierQueue.CashierQueue);
 
-                MessageBox.Show("Cashier Queue Manager Loaded Successfully!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Cashier Queue Manager Loaded Successfully!", "Information",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error loading form: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error loading form: " + ex.Message, "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // Closing Event - Clean up resources
         private void CashierWindowQueueForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             try
@@ -102,11 +59,13 @@ namespace CashierWindowQueue
                 // Log closure
                 System.Diagnostics.Debug.WriteLine("Cashier Queue Manager Form Closed at: " + DateTime.Now);
 
-                MessageBox.Show("Cashier Queue Manager Closed Successfully!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Cashier Queue Manager Closed Successfully!", "Information",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error closing form: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error closing form: " + ex.Message, "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -114,12 +73,14 @@ namespace CashierWindowQueue
         {
             try
             {
-                DisplayCashierQueue(cashierQueue.CashierList);
-                MessageBox.Show("Queue Refreshed! Current Count: " + cashierQueue.QueueCount, "Refresh", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                DisplayCashierQueue(cashierQueue.CashierQueue);
+                MessageBox.Show("Queue Refreshed! Current Count: " + cashierQueue.QueueCount, 
+                                "Refresh", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error refreshing queue: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error refreshing queue: " + ex.Message, "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -130,22 +91,25 @@ namespace CashierWindowQueue
                 if (listCashierQueue.Items.Count > 0)
                 {
                     string currentTicket = cashierQueue.GetNextTicket();
-                    cashierQueue.RemoveFromQueue(0);
-                    DisplayCashierQueue(cashierQueue.CashierList);
-                    MessageBox.Show("Ticket " + currentTicket + " has been served!", "Next Ticket", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    cashierQueue.RemoveFromQueue(0); // Remove the first item (already done)
+                    DisplayCashierQueue(cashierQueue.CashierQueue);
+                    MessageBox.Show("Ticket " + currentTicket + " has been served and removed!", 
+                                    "Next Ticket", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    MessageBox.Show("Queue is empty!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Queue is empty!", "Information", 
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error processing next ticket: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error processing next ticket: " + ex.Message, "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        public void DisplayCashierQueue(System.Collections.Generic.List<string> CashierList)
+        public void DisplayCashierQueue(IEnumerable CashierList)
         {
             try
             {
@@ -157,7 +121,8 @@ namespace CashierWindowQueue
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error displaying queue: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error displaying queue: " + ex.Message, "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -165,10 +130,11 @@ namespace CashierWindowQueue
         {
             try
             {
-                // Automatically refresh the list when there are updates
+                // Automatically refresh the list when there are updates in the queue
                 if (cashierQueue.HasUpdates())
                 {
-                    DisplayCashierQueue(cashierQueue.CashierList);
+                    DisplayCashierQueue(cashierQueue.CashierQueue);
+                    System.Diagnostics.Debug.WriteLine("Auto-refresh at: " + DateTime.Now);
                 }
             }
             catch (Exception ex)
@@ -176,9 +142,5 @@ namespace CashierWindowQueue
                 System.Diagnostics.Debug.WriteLine("Error in timer tick: " + ex.Message);
             }
         }
-
-        private Button btnRefresh;
-        private Button btnNext;
-        private ListView listCashierQueue;
     }
 }
